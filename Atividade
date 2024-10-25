@@ -1,0 +1,95 @@
+create database cliente_jgt; #Criar database
+use cliente_jgt; #Usar database e visualmente deixar em  negrito
+
+create table tbl_clientes( #Criar tabela dentro da database
+codigo int not null primary key auto_increment, 
+	   #Criando colunas para a tabela: INT(Tipo: Inteiro), Not Null(Não aceita deixar o campo vazio).
+	   #Auto increment(Não precisa dar valor, pois ja vai ser auto incrementado), Primary Key(Chave primaria).
+nome varchar(50) not null,
+sexo char(1) not null
+);
+
+insert into tbl_clientes(nome,sexo) #Inserir valor nas colunas escolhidas
+values("João Nelore", "M"), ("Texano", "M"), ("Bruno", "M"), ("Marrone", "M"); #Dando o valor
+
+select * from tbl_clientes; #Selecionando a tabela para demonstrar
+
+DELIMITER $$  # Define um novo delimitador "$$" para marcar o fim do procedimento, já que ele contém múltiplas instruções e não queremos que o MySQL encerre o procedimento no primeiro ponto e vírgula encontrado.
+CREATE PROCEDURE sp_lista_clientes(IN opcao INT)  # Cria o procedimento armazenado chamado "sp_lista_clientes".  Esse parâmentro opcao, é usado para mostrar o sexo a partir do numero inteiro.
+BEGIN  # Inicia o bloco de código do procedimento, onde será definida a lógica para execução das consultas.
+    IF opcao = 0 THEN  # Verifica se o valor de "opcao" é igual a 0.
+        SELECT * FROM tbl_clientes WHERE sexo = 'F';  # Se "opcao" for 0, esta linha executa um SELECT que retorna todas as linhas da tabela "tbl_clientes" onde a coluna "sexo" é igual a 'F' (feminino).
+    ELSEIF opcao = 1 THEN  # Caso a primeira condição não seja atendida, verifica se "opcao" é igual a 1.
+        SELECT * FROM tbl_clientes WHERE sexo = 'M';  # Se "opcao" for 1, executa um SELECT que retorna todas as linhas da tabela "tbl_clientes" onde o valor da coluna "sexo" é igual a 'M' (masculino).
+    ELSE  # Se "opcao" for diferente de 0 e 1, esta condição será acionada.
+        SELECT * FROM tbl_clientes;  # Executa um SELECT que retorna todas as linhas da tabela "tbl_clientes", independentemente do valor da coluna "sexo".
+    END IF;  # Finaliza a estrutura condicional IF-ELSEIF-ELSE.
+END $$  # Finaliza o bloco de código do procedimento e marca o fim do procedimento com o delimitador "$$".
+DELIMITER ;  # Restaura o delimitador padrão ";" após o término do procedimento, permitindo que outros comandos SQL possam ser executados normalmente.
+
+DELIMITER $$  # Define um novo delimitador "$$" para marcar o fim do procedimento, já que ele contém várias linhas e o ponto e vírgula é usado dentro do procedimento.
+CREATE PROCEDURE sp_busca_cliente_por_nome (IN nome_parcial VARCHAR(100))  # Cria o procedimento armazenado chamado "sp_busca_cliente_por_nome". Ele recebe um parâmetro de entrada "nome_parcial" do tipo VARCHAR com até 100 caracteres. Esse parâmetro será usado para buscar clientes pelo nome.
+BEGIN  # Inicia o bloco de código do procedimento, onde será definida a lógica da consulta.
+    SELECT * FROM tbl_clientes  # Inicia um comando SELECT para retornar todos os dados dos clientes da tabela "tbl_clientes".
+    WHERE nome LIKE CONCAT('%', nome_parcial, '%');  # Filtra os resultados usando o WHERE para buscar registros onde o campo "nome" contém a sequência de caracteres especificada em "nome_parcial". O operador LIKE, combinado com CONCAT('%', nome_parcial, '%'), permite localizar qualquer ocorrência de "nome_parcial" em qualquer parte do nome do cliente.
+END $$  # Finaliza o bloco de código do procedimento e marca o fim do procedimento com o delimitador "$$".
+DELIMITER ;  # Restaura o delimitador padrão ";" após o término do procedimento, para que outros comandos SQL possam ser executados normalmente.
+
+
+show procedure status;    
+
+#Feminino
+call sp_lista_clientes(0);
+#Masculino
+call sp_lista_clientes(1);
+#Todos
+call sp_lista_clientes(2);
+
+call sp_busca_cliente_por_nome('A');
+
+
+#Exemplos
+------------------------------------------------------------------------------------------------------------------------------------------------
+#Atividade
+
+
+create table tbl_clientes2(
+id int not null primary key auto_increment,
+nome varchar(100) not null,
+idade int not null,
+sexo char (1) not null,
+email varchar (100) not null,
+telefone varchar(15) not null,
+endereco varchar(255)
+);
+
+INSERT INTO tbl_clientes2 (nome, idade, sexo, email, telefone, endereco)
+VALUES 
+('Ana Silva', 25, 'F', 'ana.silva@email.com', '(11) 91234-5678', 'Rua das Flores, 123 - São Paulo'),
+('Bruno Santos', 17, 'M', 'bruno.santos@email.com', '(21) 92345-6789', 'Avenida Paulista, 456 - Rio de Janeiro'),
+('Carlos Lima', 28, 'M', 'carlos.lima@email.com', '(31) 93456-7890', 'Rua Minas Gerais, 789 - Belo Horizonte'),
+('Daniela Souza', 22, 'F', 'daniela.souza@email.com', '(41) 94567-8901', 'Avenida Paraná, 101 - Curitiba'),
+('Eduardo Rocha', 35, 'M', 'eduardo.rocha@email.com', '(51) 95678-9012', 'Rua dos Andes, 202 - Porto Alegre'),
+('Fernanda Costa', 15, 'F', 'fernanda.costa@email.com', '(61) 96789-0123', 'Rua Brasília, 303 - Brasília'),
+('Gabriel Vieira', 40, 'M', 'gabriel.vieira@email.com', '(71) 97890-1234', 'Rua da Bahia, 404 - Salvador'),
+('Heloisa Pereira', 32, 'F', 'heloisa.pereira@email.com', '(81) 98901-2345', 'Avenida Recife, 505 - Recife');
+
+DELIMITER $$  
+CREATE PROCEDURE busca_por_idades(IN opcao INT) 
+BEGIN
+    IF opcao = 0 THEN  
+        SELECT * FROM tbl_clientes2 WHERE idade < '18';  
+    ELSEIF opcao = 1 THEN  
+        SELECT * FROM tbl_clientes2 WHERE idade >= '18';  
+    ELSE  
+        SELECT * FROM tbl_clientes2;  
+    END IF;  
+END $$ 
+DELIMITER ;
+
+#Menor
+call busca_por_idades(0);
+#Maior
+call busca_por_idades(1);
+#Todos
+call busca_por_idades(2);
